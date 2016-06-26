@@ -16,15 +16,15 @@ Source0:	https://cdn.mysql.com/Downloads/%{name}-%{version}-src.tar.gz
 # Source0-md5:	b8e721b11a98e74539747204ae08ac64
 Group:		Applications/Databases
 URL:		http://dev.mysql.com/doc/refman/en/mysql-shell.html
-%{?with_boost:BuildRequires:  boost-devel >= 1.42}
+%{?with_boost:BuildRequires:	boost-devel >= 1.59}
 BuildRequires:	cmake >= 2.8
-#BuildRequires:	libedit-devel  FIXME only if -DWITH_EDITLINE=system
-%{?with_protobuf:BuildRequires:  protobuf-devel}
-BuildRequires:	python-devel
-BuildRequires:	mysql-devel
+BuildRequires:	mysql-devel >= 5.7
 BuildRequires:	openssl-devel
-#BuildRequires:  v8-devel
-#BuildRequires:  v8-python
+%{?with_protobuf:BuildRequires:	protobuf-devel >= 2.6.1}
+BuildRequires:	readline-devel
+%{?with_gtest:gtest-devel >= 1.7}
+BuildRequires:	python-devel >= 1:2.6
+%{?with_v8:BuildRequires:	v8-devel >= 3.28.71.19}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
