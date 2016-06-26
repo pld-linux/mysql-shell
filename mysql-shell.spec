@@ -1,12 +1,11 @@
 #
 # Conditional build:
 %bcond_without	boost		#
-%bcond_without	gtest		#
+%bcond_with	gtest		#
 %bcond_without	protobuf		#
-%bcond_with	static		#
 %bcond_without	ssl		#
-
-# define v8_includedir and v8_libdir for rpmbuild when building static
+%bcond_with	v8		#
+%bcond_with	python		#
 
 Summary:	Command line shell and scripting environment for MySQL
 Name:		mysql-shell
@@ -22,12 +21,10 @@ BuildRequires:	cmake
 #BuildRequires:	libedit-devel  FIXME only if -DWITH_EDITLINE=system
 %{?with_protobuf:BuildRequires:  protobuf-devel}
 BuildRequires:	python-devel
-%if %{without static}
 BuildRequires:	mysql-devel
 BuildRequires:	openssl-devel
 #BuildRequires:  v8-devel
 #BuildRequires:  v8-python
-%endif
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -53,22 +50,16 @@ The MySQL Shell provides:
 install -d build
 cd build
 
-cmake .. \
-	-DCMAKE_INSTALL_PREFIX=%{_prefix} \
+%cmake \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
-%if "%{_lib}" == "lib64"
-	-DLIB_SUFFIX=64 \
-%endif
-%if %{with static}
-	-DWITH_SSL=%{!?with_ssl:bundled}%{?with_ssl:ON} \
-	-DMYSQLCLIENT_STATIC_LINKING=ON \
-	-DV8_INCLUDE_DIR=%{v8_includedir} \
-	-DV8_LIB_DIR=%{v8_libdir} \
+	-DMYSQLCLIENT_STATIC_LINKING=OFF \
+%if %{with v8}
+	-DV8_INCLUDE_DIR=/usr/include/v8 \
+	-DV8_LIB_DIR=%{_libdir} \
 %else
-	-DWITH_SSL=system \
-	-DMYSQLCLIENT_STATIC_LINKING=ON \
-	-DHAVE_V8=0FF
+	-DHAVE_V8=OFF \
 %endif
+	-DWITH_SSL=system \
 %if %{with boost}
 	-DBOOST_ROOT=ON \
 	-DBoost_NO_SYSTEM_PATHS:BOOL=TRUE \
@@ -80,12 +71,13 @@ cmake .. \
 	-DWITH_TESTS=ON \
 	-DWITH_GTEST=ON \
 %endif
+%if %{with python}
 	-DHAVE_PYTHON=1 \
+%else
+	-DHAVE_PYTHON=OFF \
+%endif
+	..
 
-# Supported V8 versions are limited, disable
-# V8 in non static for now.
-# -DV8_INCLUDE_DIR=%{_includedir}/v8 \
-# -DV8_LIB_DIR=%{_libdir} \
 # Shared linking don't work
 # -DMYSQLCLIENT_STATIC_LINKING=ON \
 
@@ -108,7 +100,5 @@ rm -rf $RPM_BUILD_ROOT
 %doc README
 %attr(755,root,root) %{_bindir}/mysqlsh
 %{_mandir}/man1/mysqlsh.1*
-%if %{with static}
 %{_datadir}/mysqlsh/modules/js/mysql.js
 %{_datadir}/mysqlsh/modules/js/mysqlx.js
-%endif
