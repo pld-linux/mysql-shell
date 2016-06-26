@@ -16,8 +16,8 @@ Source0:	https://cdn.mysql.com/Downloads/%{name}-%{version}-src.tar.gz
 # Source0-md5:	b8e721b11a98e74539747204ae08ac64
 Group:		Applications/Databases
 URL:		http://dev.mysql.com/doc/refman/en/mysql-shell.html
-%{?with_boost:BuildRequires:  boost-devel}
-BuildRequires:	cmake
+%{?with_boost:BuildRequires:  boost-devel >= 1.42}
+BuildRequires:	cmake >= 2.8
 #BuildRequires:	libedit-devel  FIXME only if -DWITH_EDITLINE=system
 %{?with_protobuf:BuildRequires:  protobuf-devel}
 BuildRequires:	python-devel
